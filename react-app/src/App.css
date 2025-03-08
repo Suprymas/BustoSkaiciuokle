@@ -5,7 +5,7 @@
 }
 
 .input-container {
-  align-items: flex-end;
+  align-items: center;
 }
 
 input {
@@ -37,8 +37,27 @@ label {
 
 .resultText {
   font-size: 1.2rem;
+  color: #000;
 }
 
-h1 {
+h2 {
   margin: 1rem;
+  font-size: 2.2rem;
+  margin-top: 0;
+  color: #000;
 }
+
+.resultContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+.resultContainerMoney {
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f9f9;
+  width: 49%;
+  border-radius: 8px;
+}
+
