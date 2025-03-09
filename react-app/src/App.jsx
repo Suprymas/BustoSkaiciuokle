@@ -12,8 +12,9 @@ function App() {
     const [euribor, setEuribor] = useState();
     const [targetMoney, setTargetMoney] = useState();
     const [monthly, setMonthly] = useState();
-    const [timeYears, setTimeYears] = useState();
-    const [timeMonths, setTimeMonths] = useState();
+    const [time, setTime] = useState();
+    const [payBank, setPayBank] = useState();
+
     const inputHandler = (e) => {
         const { value, name } = e.target;
         switch (name) {
@@ -47,20 +48,33 @@ function App() {
         const euriborNumber = parseFloat(euribor) || 0;
         const interest = (interestRateNumber + euriborNumber) / 12;
         const months = years * 12;
-        const monthlyPayment = loanAmount * (((interest/100)
-                                        * Math.pow(1 + (interest/100), months))
-                                        / (Math.pow(1 + (interest/100), months) - 1));
+        let monthlyPayment = 0;
+        if (interest !== 0){
+            monthlyPayment = loanAmount * (((interest/100)
+                                            * Math.pow(1 + (interest/100), months))
+                                            / (Math.pow(1 + (interest/100), months) - 1));
+        } else {
+            monthlyPayment = loanAmount / months;
+        }
         const targetIncomeNumber = parseFloat(targetIncome) || 0;
-        const targetMoneyNumber = parseFloat(targetMoney) || 0;
-        console.log(targetIncomeNumber);
         const rentPrice = monthlyPayment + targetIncomeNumber;
-        const totalMonths = targetMoney / targetIncome;
+        const totalMonths = Math.ceil(targetMoney / targetIncome);
         const timeRequiredYears = totalMonths / 12;
         const timeRequiredMonths = totalMonths % 12;
         setMonthly(rentPrice.toFixed(2));
-        setTimeYears(Math.trunc(timeRequiredYears));
-        setTimeMonths(Math.trunc(timeRequiredMonths));
-
+        setPayBank(monthlyPayment.toFixed(2));
+        console.log(timeRequiredYears);
+        if (Math.trunc(timeRequiredYears) > 0 && timeRequiredMonths > 0){
+            setTime(`${Math.trunc(timeRequiredYears)} m. ir ${Math.trunc(timeRequiredMonths)} mėn.`);
+            return;
+        }
+        if (Math.trunc(timeRequiredYears) > 0 && timeRequiredMonths === 0){
+            setTime(`${Math.trunc(timeRequiredYears)} m.`);
+            return;
+        }
+        if (Math.trunc(timeRequiredYears) === 0 && timeRequiredMonths > 0){
+            setTime(`${Math.trunc(timeRequiredMonths)} mėn.`);
+        }
     }
     return (
         <>
@@ -107,7 +121,7 @@ function App() {
                            onChange={inputHandler}
                            name={"interestRate"}/>
                     <br/>
-                    <label>Siekiami nuompinigiai: </label>
+                    <label>Siekiamas pelnas kas mėnesį: </label>
                     <br/>
                     <input type="number" value={targetIncome}
                            onChange={inputHandler}
@@ -117,34 +131,31 @@ function App() {
             </div>
             <div className={"buttonContainer"}>
                 <button className={"calcButton"}
-                        disabled={!targetIncome
-                            && !years
-                            && !interestRate
-                            && !housePrice
-                            && !initialDeposit
-                            && !targetMoney
-                            && !euribor}
+                        disabled={targetIncome < 1
+                            || years < 1
+                            || interestRate < 1
+                            || housePrice < 1
+                            || initialDeposit < 1
+                            || targetMoney < 1
+                            || euribor < 1}
                         onClick={calcHandler}>
                     Skaičiuoti
                 </button>
             </div>
-            {timeYears &&
                 <div className={"resultContainer"}>
                     <div className={"resultContainerMoney"}>
                         <label className={"resultText"}>Nuomos kaina: </label>
                         {monthly && (<h2>{monthly} eur</h2>)}
                     </div>
                     <div className={"resultContainerMoney"}>
+                        <label className={"resultText"}>Bankui sumokėti kas mėn.: </label>
+                        {monthly && (<h2>{payBank} eur</h2>)}
+                    </div>
+                    <div className={"resultContainerMoney"}>
                         <label className={"resultText"}>Kiek laiko taupyti: </label>
-                        {timeYears !== 0 && timeMonths !== 0 &&
-                            <h2>{timeYears} m. ir {timeMonths} mėn.</h2>}
-                        {timeYears !== 0 && timeMonths === 0 &&
-                            <h2>{timeYears} m.</h2>}
-                        {timeYears === 0 && timeMonths !== 0 &&
-                            <h2>{timeMonths} mėn.</h2>}
+                            <h2>{time}</h2>
                     </div>
                 </div>
-            }
         </>
     )
 }
